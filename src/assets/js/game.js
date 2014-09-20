@@ -5,18 +5,36 @@
 
 var map;
 
-var game = function () {
-
-}
-
-
-game.prototype.start = function(gamestate, callback) {
-		
-}
-
-game.prototype.init = function() {
+function GAME() {
 	this.gamestate = 0; 
 }
+GAME.prototype = {
+    initialize: function() {
+
+    },
+    start: function() {
+
+    },
+    getGameState: function() {
+    	return this.gamestate;
+    },
+    restart: function() {
+
+    }
+}
+
+function PLAYER() {
+
+}
+
+PLAYER.prototype = {
+    initialize: function() {
+
+    }
+}
+
+
+
 
 
 
