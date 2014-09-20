@@ -1,1 +1,1 @@
-map = new MAP();
+var map = new window.map();

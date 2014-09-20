@@ -1,3 +1,52 @@
+var map = window.map = function() {
+    this.gamewindow = document.getElementById("game");
+    this.canvas         = document.createElement("canvas");
+    this.context        = this.canvas.getContext("2d");
+    this.canvas.width   = 400;
+    this.canvas.height  = 400;
+    this.tileCount = 10;
+    this.size = (this.canvas.height / this.tileCount) / 2;
+
+    this.gamewindow.appendChild(this.canvas);
+    this.context.fillStyle = "#000";
+    this.context.strokeStyle = "#FFF";
+    this.context.lineWidth = 1;
+
+    this.initGrid();
+}
+
+map.prototype.initGrid = function() {
+    var i, j;
+    var width = this.size * 2;
+    var height = Math.sqrt(3)/2 * width
+
+    for (var i = 0; i < this.tileCount; i++ ) {
+        for (var j = 0; j < this.tileCount; j++) {
+            if (i % 2 == 0) {
+                this.drawCenter(this.size + (i * (width)), this.size + (j * height));
+            } else {
+                this.drawCenter(this.size + (i * (width)) - (width / 4), this.size + (j * height) + (height / 2));
+            }
+        }
+    }
+}
+
+map.prototype.drawCenter = function(centerX, centerY) {
+    this.context.beginPath();
+    for (var i = 0; i < 6; i++) {
+        var angle = 2 * (Math.PI / 6) * i;
+        var x = centerX + this.size * Math.cos(angle);
+        var y = centerY + this.size * Math.sin(angle);
+        if (i == 0) {
+            this.context.moveTo(x, y);
+        } else {
+            this.context.lineTo(x, y);
+        }
+    }
+    this.context.closePath();
+    this.context.fill()
+}
+///
 
 	
 function MAP() {
