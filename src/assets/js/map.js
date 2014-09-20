@@ -2,8 +2,8 @@ var map = window.map = function() {
     this.gamewindow = document.getElementById("game");
     this.canvas         = document.createElement("canvas");
     this.context        = this.canvas.getContext("2d");
-    this.canvas.width   = 400;
-    this.canvas.height  = 400;
+    this.canvas.width   = 1000;
+    this.canvas.height  = 1000;
     this.tileCount = 10;
     this.size = (this.canvas.height / this.tileCount) / 2;
 
@@ -19,13 +19,14 @@ map.prototype.initGrid = function() {
     var i, j;
     var width = this.size * 2;
     var height = Math.sqrt(3)/2 * width
+    var horiz = 3/4 * width;
 
     for (var i = 0; i < this.tileCount; i++ ) {
         for (var j = 0; j < this.tileCount; j++) {
             if (i % 2 == 0) {
-                this.drawCenter(this.size + (i * (width)), this.size + (j * height));
+                this.drawCenter(this.size + (i * horiz), this.size + (j * height));
             } else {
-                this.drawCenter(this.size + (i * (width)) - (width / 4), this.size + (j * height) + (height / 2));
+                this.drawCenter(this.size + (i * horiz), this.size + (j * height) + (height / 2));
             }
         }
     }
