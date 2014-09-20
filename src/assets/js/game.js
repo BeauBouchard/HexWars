@@ -3,6 +3,8 @@
  *  Houses game logic for HexWars
  */
 
+var map;
+
 var game = function () {
 
 }
