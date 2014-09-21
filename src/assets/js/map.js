@@ -23,6 +23,7 @@ MAP.prototype = {
         var horiz = 3/4 * width;
 
         for (var i = 0; i < this.tileCount; i++ ) {
+            this.tileset[i] = [];
             for (var j = 0; j < this.tileCount; j++) {
                 var atile = new TILE();
                 atile.initialize(i,j);
@@ -31,13 +32,23 @@ MAP.prototype = {
                 } else {
                     atile.drawTileCenter(this.context,this.size + (i * horiz), this.size + (j * height) + (height / 2),this.size);
                 }
-                this.tileset.push(atile);
+                this.tileset[i][j] = atile;
             }
         }
+    },
+    setTileColor: function (x,y,newcolor) {
+        this.tileset[x][y].changeColor(newcolor,newcolor);
+        this.tileset[x][y].redrawTile();
     }
 }
 function TILE() {
-
+    this.fillStyle; 
+    this.strokeStyle; 
+    this.lineWidth; 
+    this.centerX; 
+    this.centerY; 
+    this.size;
+    this.Group;
 }
 TILE.prototype = {
     initialize: function( x, y)  {
@@ -45,22 +56,51 @@ TILE.prototype = {
         this.truey = y;
     },
     drawTileCenter: function(canvasContext,centerX, centerY,size) { 
-        canvasContext.fillStyle         = "#FFF";
-        canvasContext.strokeStyle       = "#323232";
-        canvasContext.lineWidth         = 2;
-        canvasContext.beginPath();
+        this.canvasContext              = canvasContext;
+        this.canvasContext.fillStyle    = "#FFF";
+        this.canvasContext.strokeStyle  = "#323232";
+        this.canvasContext.lineWidth    = 2;
+        this.fillStyle                  = "#FFF";
+        this.strokeStyle                = "#323232";
+        this.lineWidth                  = 2;
+        this.centerX                    = centerX;
+        this.centerY                    = centerY;
+        this.size                       = size;
+        
+        this.canvasContext.beginPath();
         for (var i = 0; i < 6; i++) {
             var angle = 2 * (Math.PI / 6) * i;
-            var x = centerX + size * Math.cos(angle);
-            var y = centerY + size * Math.sin(angle);
+            var x = this.centerX + this.size * Math.cos(angle);
+            var y = this.centerY + this.size * Math.sin(angle);
             if (i == 0) {
-                canvasContext.moveTo(x, y);
+                this.canvasContext.moveTo(x, y);
             } else {
-                canvasContext.lineTo(x, y);
+                this.canvasContext.lineTo(x, y);
             }
         }
-        canvasContext.closePath();
-        canvasContext.fill();
-        canvasContext.stroke();
+        this.canvasContext.closePath();
+        this.canvasContext.fill();
+        this.canvasContext.stroke();
+
+    },
+    changeColor: function(fillStyle,strokeStyle) {
+        this.canvasContext.fillStyle    = fillStyle;
+        this.canvasContext.strokeStyle  = strokeStyle;
+    },
+    redrawTile: function() {
+        this.canvasContext.beginPath();
+        for (var i = 0; i < 6; i++) {
+            var angle = 2 * (Math.PI / 6) * i;
+            var x = this.centerX + this.size * Math.cos(angle);
+            var y = this.centerY + this.size * Math.sin(angle);
+            if (i == 0) {
+                this.canvasContext.moveTo(x, y);
+            } else {
+                this.canvasContext.lineTo(x, y);
+            }
+        }
+        this.canvasContext.closePath();
+        this.canvasContext.fill();
+        this.canvasContext.stroke();
     }
 }
