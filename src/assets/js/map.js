@@ -2,10 +2,16 @@ function MAP() {
     this.gamewindow     = document.getElementById("game");
     this.canvas         = document.createElement("canvas");
     this.context        = this.canvas.getContext("2d");
-    this.canvas.width   = 1000;
-    this.canvas.height  = 1008;
     this.tileCount      = 6;
-    this.size           = (this.canvas.width / this.tileCount) / 3.646464;
+    var w = window,
+        d = document,
+        e = d.documentElement,
+        g = d.getElementsByTagName('body')[0],
+        x = w.innerWidth || e.clientWidth || g.clientWidth,
+        y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+    this.canvas.width   = x;
+    this.canvas.height  = y;
+    this.size           = Math.sqrt((this.canvas.width^2)+(this.canvas.height^2))/1.22;
     this.tileset        = []; 
 
     this.gamewindow.appendChild(this.canvas);
@@ -24,7 +30,7 @@ MAP.prototype = {
         var horiz       = width;
         var xCenter     = this.canvas.width / 2;
         var yCenter     = this.canvas.height / 2;
-        var tileCount   = 0;
+        var tileid   = 0;
 
         for (var q = -5; q <= 5; q++) {
             for (var r = -5; r <= 5; r++) {
@@ -37,9 +43,9 @@ MAP.prototype = {
                 var y = this.size * 3/2 * r;
                 var atile = new TILE();
 
-                atile.initialize(tileCount,x + xCenter, y + yCenter,this.size);
+                atile.initialize(tileid,x + xCenter, y + yCenter,this.size);
                 this.tileset.push(atile);
-                tileCount++;
+                tileid++;
             }
         }
         this.drawGrid();
@@ -47,12 +53,19 @@ MAP.prototype = {
     },
     drawGrid: function() {
         console.log("MAP.drawGrid");
+
+
+        this.tileset[45].setFillStyle("#000032"); // test
+        this.tileset[45].setStrokeStyle("#202099"); // test
         for(x in this.tileset) {
                 this.tileset[x].drawTileCenter(this.context);
             }
         for(x in this.tileset) {
              this.tileset[x].drawTileNum(this.context);
             }
+
+
+
     },
     reDrawGrid: function () {
         this.clearMap();
@@ -178,6 +191,10 @@ function HUD () {
 
 HUD.prototype = {
     initialize: function() {
-        
+
     }
+}
+
+HUD.prototype.addTile =function () {
+    this.tileCount++;
 }
