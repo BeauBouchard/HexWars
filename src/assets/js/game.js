@@ -14,7 +14,9 @@ GAME.prototype = {
     initialize: function() {
     	console.log("Initializing Game");
     	this.map = new MAP();
+        this.hud = new HUD();
     	this.map.initialize();
+        this.hud.initialize();
     },
     start: function() {
     	console.log("Starting Game");
@@ -39,6 +41,7 @@ GAME.prototype = {
     	//this.map.setTileColor(1,1,this.players[0].getColor());
         //this.map.setTileFill(1,1,"#000032");
         //this.map.setTileStroke(1,1,"#3333CC");
+
     }
 }
 
@@ -81,6 +84,18 @@ TEAM.prototype = {
 		return this.color;
 	}
 }
+
+function HUD (){
+    this.width = 300;
+    this.height = 200;
+}
+
+HUD.prototype = {
+    initialize: function() {
+
+    }
+}
+
 
 
 

@@ -18,12 +18,13 @@ MAP.prototype = {
     },
     initGrid: function () {
         console.log("MAP.initGrid");
-        var height = this.size * 2;
-        var vert = 3/4 * height
-        var width = Math.sqrt(3)/2 * height
-        var horiz = width;
-        var xCenter = this.canvas.width / 2;
-        var yCenter = this.canvas.height / 2;
+        var height      = this.size * 2;
+        var vert        = 3/4 * height
+        var width       = Math.sqrt(3)/2 * height
+        var horiz       = width;
+        var xCenter     = this.canvas.width / 2;
+        var yCenter     = this.canvas.height / 2;
+        var tileCount   = 0;
 
         for (var q = -5; q <= 5; q++) {
             for (var r = -5; r <= 5; r++) {
@@ -35,8 +36,10 @@ MAP.prototype = {
                 var x = this.size * Math.sqrt(3) * (q + r/2);
                 var y = this.size * 3/2 * r;
                 var atile = new TILE();
-                atile.initialize(x + xCenter, y + yCenter,this.size);
+
+                atile.initialize(tileCount,x + xCenter, y + yCenter,this.size);
                 this.tileset.push(atile);
+                tileCount++;
             }
         }
         this.drawGrid();
@@ -46,6 +49,9 @@ MAP.prototype = {
         console.log("MAP.drawGrid");
         for(x in this.tileset) {
                 this.tileset[x].drawTileCenter(this.context);
+            }
+        for(x in this.tileset) {
+             this.tileset[x].drawTileNum(this.context);
             }
     },
     reDrawGrid: function () {
@@ -65,13 +71,16 @@ function TILE() {
     this.lineWidth         = 1;
     this.truex             = 0;
     this.truey             = 0;
+    this.id                = -1;
 }
 
 TILE.prototype = {
-    initialize: function( x,y ,size)  {
+    initialize: function(id, x,y ,size)  {
+        this.id = id;
         this.centerX = x;
         this.centerY = y;
         this.size    = size;
+        this.font   = "8px Georgia";
     },
     drawTileCenter: function(canvasContext) { 
         canvasContext.fillStyle         = this.fillStyle;
@@ -91,8 +100,19 @@ TILE.prototype = {
         canvasContext.closePath();
         canvasContext.fill();
         canvasContext.stroke();
+        console.log("TILE.drawTileCenter");
+    },
+    drawTileNum: function(canvasContext) {
+        canvasContext.fillStyle         = "#323232";
+        canvasContext.strokeStyle       = this.strokeStyle;
+        canvasContext.lineWidth         = this.lineWidth;
+        canvasContext.font              = this.font;
+        canvasContext.fillText(this.id,this.centerX,this.centerY);
+        console.log("TILE.drawTileNum");
     }
 }
+
+
 
 TILE.prototype.setCenterX      = function(newX) {
     this.centerX           = newX;
@@ -148,4 +168,20 @@ TILE.prototype.getTrueX      = function() {
 
 TILE.prototype.getTrueY      = function() {
     return this.truey;
+}
+
+function HUD () {
+    this.width = 300;
+    this.height = 200;
+    this.tileCount = 0;
+}
+
+HUD.prototype = {
+    initialize: function() {
+
+    }
+}
+
+HUD.prototype.addTile =function () {
+    this.tileCount++;
 }
