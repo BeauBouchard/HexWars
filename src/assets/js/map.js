@@ -178,10 +178,6 @@ function HUD () {
 
 HUD.prototype = {
     initialize: function() {
-
+        
     }
-}
-
-HUD.prototype.addTile =function () {
-    this.tileCount++;
 }
