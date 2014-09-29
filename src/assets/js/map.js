@@ -2,7 +2,7 @@ function MAP() {
     this.gamewindow     = document.getElementById("game");
     this.canvas         = document.createElement("canvas");
     this.context        = this.canvas.getContext("2d");
-    this.tileCount      = 6;
+    this.tileCount      = 20;
     var w = window,
         d = document,
         e = d.documentElement,
@@ -11,7 +11,7 @@ function MAP() {
         y = w.innerHeight|| e.clientHeight|| g.clientHeight;
     this.canvas.width   = x;
     this.canvas.height  = y;
-    this.size           = Math.sqrt((this.canvas.width^2)+(this.canvas.height^2))/1.22;
+    this.size           = Math.sqrt((this.canvas.width^2)+(this.canvas.height^2))/(this.tileCount/5);
     this.tileset        = []; 
 
     this.gamewindow.appendChild(this.canvas);
@@ -32,10 +32,10 @@ MAP.prototype = {
         var yCenter     = this.canvas.height / 2;
         var tileid   = 0;
 
-        for (var q = -5; q <= 5; q++) {
-            for (var r = -5; r <= 5; r++) {
+        for (var q = -this.tileCount; q <= this.tileCount; q++) {
+            for (var r = -this.tileCount; r <= this.tileCount; r++) {
                 if ((q < 0 && r < 0) || (q > 0 && r > 0)) {
-                    if ((Math.abs(q) + Math.abs(r)) > 5) {
+                    if ((Math.abs(q) + Math.abs(r)) > this.tileCount) {
                         continue;
                     }
                 }
