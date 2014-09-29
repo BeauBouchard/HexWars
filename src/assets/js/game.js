@@ -36,7 +36,9 @@ GAME.prototype = {
     },
     setPlayerColor: function() {
     	//console.log(this.players.pop().getColor());
-    	this.map.setTileColor(1,1,this.players[0].getColor());
+    	//this.map.setTileColor(1,1,this.players[0].getColor());
+        //this.map.setTileFill(1,1,"#000032");
+        //this.map.setTileStroke(1,1,"#3333CC");
     }
 }
 
