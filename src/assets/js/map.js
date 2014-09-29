@@ -36,7 +36,6 @@ MAP.prototype = {
                 var y = this.size * 3/2 * r;
                 var atile = new TILE();
                 atile.initialize(x + xCenter, y + yCenter,this.size);
-                //atile.setContext(this.context);
                 this.tileset.push(atile);
             }
         }
@@ -46,20 +45,7 @@ MAP.prototype = {
     drawGrid: function() {
         console.log("MAP.drawGrid");
         for(x in this.tileset) {
-                //test
-                    if(x >= 40 )
-                    {
-                        this.tileset[x].setFillStyle("#000032");
-                        this.tileset[x].setStrokeStyle("#3232CC");
-                        this.tileset[x].drawTileCenter(this.context);
-                    }
-                    else
-                    {
-                        this.tileset[x].drawTileCenter(this.context);
-                    }
-                //endtest
-                //this.tileset[x].drawTileCenter(this.context);
-
+                this.tileset[x].drawTileCenter(this.context);
             }
     },
     reDrawGrid: function () {
