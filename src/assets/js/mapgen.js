@@ -110,47 +110,51 @@ region.prototype.grow = function() {
 
 gamewindow     = document.getElementById("game");
 canvas         = document.createElement("canvas");
-canvas.width   = 600;
+canvas.width   = 1000;
 canvas.height  = 600;
 gamewindow.appendChild(this.canvas);
+var tilesize = 10;
+var regionCount = 20;
 
-a = new mapgenerator(canvas, 30);
-a.generate(5, .75);
+a = new mapgenerator(canvas, tilesize);
+a.generate(regionCount, .75);
 
-for (var i = 0; i < 5; i++) {
+var colors = ['#f5f5f5', '#ffffff', '#dff0d8', '#d9edf7', '#fcf8e3', '#f2dede']
+
+for (var i = 0; i < regionCount; i++) {
     var region = a.regions[i];
     var cells = region.getCells();
+    var cellIndex = region.cells;
+
+    var canvasContext = canvas.getContext("2d");
+    canvasContext.fillStyle         = '#000000';
+    canvasContext.strokeStyle       = "#323232";
+    canvasContext.lineWidth         = 1;
+    canvasContext.beginPath();
 
     for (var j = 0; j < cells.length; j++) {
         var cell = cells[j];
 
-        drawHexagon(cell.x, cell.y, region.tag);
-    }
+        for (var direction = 0; direction < 6; direction++) {
+            var neighbor = cell.getNeighbor(direction);
 
-}
+            if (!cellIndex[neighbor]) {
+                var angle = 2 * (Math.PI / 6) * (direction + 0.5);
+                var x1 = cell.x + tilesize * Math.cos(angle);
+                var y1 = cell.y + tilesize * Math.sin(angle);
 
-function drawHexagon(centerX, centerY, text) {
-    var canvasContext = canvas.getContext("2d");
-    canvasContext.fillStyle         = "#FFF";
-    canvasContext.strokeStyle       = "#323232";
-    canvasContext.lineWidth         = 1;
-    canvasContext.beginPath();
-    for (var i = 0; i < 6; i++) {
-        var angle = 2 * (Math.PI / 6) * (i + 0.5);
-        var x = centerX + 30 * Math.cos(angle);
-        var y = centerY + 30 * Math.sin(angle);
-        if (i == 0) {
-            canvasContext.moveTo(x, y);
-        } else {
-            canvasContext.lineTo(x, y);
+                angle = 2 * (Math.PI / 6) * (((direction + 1) % 6) + 0.5);
+                var x2 = cell.x + tilesize * Math.cos(angle);
+                var y2 = cell.y + tilesize * Math.sin(angle);
+
+                canvasContext.moveTo(x1, y1);
+                canvasContext.lineTo(x2, y2);
+            }
         }
     }
-    canvasContext.closePath();
-    canvasContext.fill();
-    canvasContext.stroke();
 
-    canvasContext.fillStyle = '#000';
-    canvasContext.font="10px Georgia";
-    canvasContext.textAlign = 'center';
-    canvasContext.fillText(text, centerX, centerY);
+    canvasContext.closePath();
+    canvasContext.stroke();
+    canvasContext.fill();
+
 }

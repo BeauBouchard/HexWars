@@ -49,8 +49,8 @@ var hex = window.hex = function(grid, row, column) {
 };
 
 var neighborDelta = {
-    even: [[-1, 0], [0, 1], [1, 0], [1, -1], [0, -1], [-1, -1]],
-    odd: [[-1, 1], [0, 1], [1, 1], [1, 0], [0, -1], [-1, 0]]
+    even: [[1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [0, 1]],
+    odd: [[1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1], [0, 1]]
 }
 
 hex.prototype.getNeighbors = function() {
@@ -66,6 +66,13 @@ hex.prototype.getNeighbors = function() {
     }, this).filter(function(hex) {
         return hex;
     });
+};
+
+hex.prototype.getNeighbor = function(direction) {
+    var parity = this.row & 1 ? 'odd' : 'even';
+    var delta = neighborDelta[parity][direction];
+
+    return this.grid.getHex(this.row + delta[0], this.column + delta[1]);
 };
 
 hex.prototype.toString = function() {
