@@ -36,6 +36,10 @@ GAME.prototype = {
     		var player = new PLAYER(i);
     		this.players.push(player);
     	}
+    },
+    changeTile: function (numRow, numCol){
+        //this.map.tileset[numRow][numCol].setFillStyle("blue");
+        this.map.tileset[numRow][numCol].clear();
     }
 }
 
