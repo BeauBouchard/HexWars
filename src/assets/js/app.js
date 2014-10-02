@@ -11,7 +11,9 @@ var a = document.getElementById("gamesvg");
     		els[i].addEventListener("click", function(){ 
 
     			console.log("column:" + this.getAttribute("column") + " row:" + this.getAttribute("row"));
-    			
+    				//game.changeTile(this.getAttribute("row"),this.getAttribute("column"));
+    				//this.parentNode.removeChild(this);
+    				this.setAttribute('fill',"yellow");
     			});
     	}
   	});
