@@ -10,10 +10,8 @@
  *     - pick a random one and add it to the region
  *
  * to draw a region:
- * create a canvas context
  * for each cell:
- *     draw a hexagon, ignoring sides that have a neighbor that is also in the region
- * save the context
+ *     draw a tile, ignoring sides that have a neighbor that is also in the region
  *
  * grid object:
  * given a width, height, and tile size
@@ -55,6 +53,7 @@ MAP.prototype = {
             var row = tileid%this.maxRows;
             var column = tileid%this.maxColumns;
             console.log("Row:"+row+" Column:"+column+"");
+            this.tileSet[row][column].setid(tileid);
             this.tileSet[row][column].draw();
         }
     },
@@ -90,17 +89,6 @@ MAP.prototype = {
         }
         this.drawMap();
         return;
-    },
-    drawMap: function() {
-        console.log("MAP.drawMap");
-    },
-    reDrawGrid: function () {
-        console.log("MAP.reDrawGrid");
-        this.clearMap();
-        this.drawGrid();
-    },
-    clearMap: function () {
-        console.log("MAP.clearMap");
     }
 }
 
@@ -123,9 +111,15 @@ function TILE(tilesize, row, column) {
     this.strokeStyle = "black";
     this.fillStyle = 'white';
     this.lineWidth = 1;
+    this.neighborDelta = {
+        even: [[1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [0, 1]],
+        odd: [[1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1], [0, 1]]}
 }
 
 TILE.prototype = {
+    initialize: function(id) {
+        this.id = id;
+    },
     initialize: function(id,centerX,centerY)  {
         this.id = id;
         this.x = centerX;
@@ -163,7 +157,7 @@ TILE.prototype = {
             polygon.setAttributeNS(null, 'points', pointString);
             
             var gTile = document.createElementNS(xmlns,'g');
-                gTile.setAttributeNS(null, 'class','tile');
+                gTile.setAttributeNS(null, 'id','tile' + this.id);
                 gTile.appendChild(polygon);
             svgspace.appendChild(gTile);
             this.display = true;
@@ -172,12 +166,40 @@ TILE.prototype = {
     }, 
     clear: function() {
         if(this.display === true) {
+            var svgspace = document.getElementById("gamesvg");
+            var polylist = svgspace.querySelectorAll("polygon"+this.id);
+            //polylist.getElementById("polygon"+this.id);
             this.display = false;
-            this.draw();
         }
+    },
+    getNeighbors: function () {
+
+
+        var parity = this.row & 1 ? 'odd' : 'even';
+        var delta;
+
+        /*return [0, 1, 2, 3, 4, 5].map(function(direction) {
+            delta = neighborDelta[parity][direction];
+
+            return [this.row + delta[0], this.column + delta[1]];
+        }, this).map(function(coordinates) {
+            return this.grid.getHex.apply(this.grid, coordinates);
+        }, this).filter(function(hex) {
+            return hex;
+        });*/
+    },
+    getNeighbor: function(direction) {
+        var parity = this.row & 1 ? 'odd' : 'even';
+        var delta = this.neighborDelta[parity][direction];
+
+        return this.grid.getHex(this.row + delta[0], this.column + delta[1]);
+    }, 
+    toString: function() {
+        return this.row + ', ' + this.column;
     }
 }
 
+TILE.prototype.setid     = function(newid)     { this.id     = newid;};
 TILE.prototype.setX      = function(newX)     { this.x     = newX;};
 TILE.prototype.setY      = function(newY)     { this.y     = newY;};
 TILE.prototype.setFillStyle    = function(newFill)  { this.fillStyle   = newFill;};
@@ -231,3 +253,5 @@ REGION.prototype.reduce = function (carry, neighbors) {
     return carry;
     */
 }
+
+
