@@ -108,13 +108,57 @@ region.prototype.grow = function() {
     }
 };
 
+region.prototype.getPerimeter = function() {
+    var cells = this.getCells();
+    var visitedSides = {};
+    var perimeter = [];
+    var i, side, cell, neighbor, perimeterCell, node, offset;
+
+    for (i = 0; i < cells.length && !perimeterCell; i++) {
+        cell = cells[i];
+
+        for (side = 0; side < 6; side++) {
+            neighbor = cell.getNeighbor(side);
+
+            if (!neighbor || neighbor.tag != this.tag) {
+                perimeterCell = cell;
+                offset = side;
+                break;
+            }
+        }
+    }
+    while (perimeterCell) {
+        node = perimeterCell;
+        perimeterCell = null;
+
+        if (!visitedSides[node]) {
+            visitedSides[node] = {};
+        }
+
+        for (side = offset; !visitedSides[node][side]; side = (side + 1) % 6) {
+            visitedSides[node][side] = side;
+            neighbor = node.getNeighbor(side);
+
+            if (!neighbor || neighbor.tag != this.tag) {
+                perimeter.push(node.getCoordinatesForSide(side));
+            } else if (neighbor && neighbor.tag == this.tag) {
+                perimeterCell = neighbor;
+                offset = (side + 4) % 6;
+                break;
+            }
+        }
+    }
+
+    return perimeter;
+};
+
 gamewindow     = document.getElementById("game");
 canvas         = document.createElement("canvas");
 canvas.width   = 1000;
 canvas.height  = 600;
 gamewindow.appendChild(this.canvas);
 var tilesize = 10;
-var regionCount = 20;
+var regionCount = 6;
 
 a = new mapgenerator(canvas, tilesize);
 a.generate(regionCount, .75);
@@ -127,34 +171,25 @@ for (var i = 0; i < regionCount; i++) {
     var cellIndex = region.cells;
 
     var canvasContext = canvas.getContext("2d");
-    canvasContext.fillStyle         = '#000000';
+    canvasContext.fillStyle         = colors[i];
     canvasContext.strokeStyle       = "#323232";
     canvasContext.lineWidth         = 1;
     canvasContext.beginPath();
 
-    for (var j = 0; j < cells.length; j++) {
-        var cell = cells[j];
+    var perimeter = region.getPerimeter();
+    for (var j = 0; j < perimeter.length; j++) {
+        var coordinates = perimeter[j];
+        var x = coordinates[0];
+        var y = coordinates[1];
 
-        for (var direction = 0; direction < 6; direction++) {
-            var neighbor = cell.getNeighbor(direction);
-
-            if (!cellIndex[neighbor]) {
-                var angle = 2 * (Math.PI / 6) * (direction + 0.5);
-                var x1 = cell.x + tilesize * Math.cos(angle);
-                var y1 = cell.y + tilesize * Math.sin(angle);
-
-                angle = 2 * (Math.PI / 6) * (((direction + 1) % 6) + 0.5);
-                var x2 = cell.x + tilesize * Math.cos(angle);
-                var y2 = cell.y + tilesize * Math.sin(angle);
-
-                canvasContext.moveTo(x1, y1);
-                canvasContext.lineTo(x2, y2);
-            }
+        if (j == 0) {
+            canvasContext.moveTo(x, y);
+        } else {
+            canvasContext.lineTo(x, y);
         }
     }
 
     canvasContext.closePath();
     canvasContext.stroke();
     canvasContext.fill();
-
 }

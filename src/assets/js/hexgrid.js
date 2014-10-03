@@ -75,6 +75,14 @@ hex.prototype.getNeighbor = function(direction) {
     return this.grid.getHex(this.row + delta[0], this.column + delta[1]);
 };
 
+hex.prototype.getCoordinatesForSide = function(side) {
+    var angle = 2 * (Math.PI / 6) * (side + 0.5);
+    var x = this.x + this.grid.tileSize * Math.cos(angle);
+    var y = this.y + this.grid.tileSize * Math.sin(angle);
+
+    return [x, y];
+};
+
 hex.prototype.toString = function() {
     return this.row + ', ' + this.column;
 };
