@@ -2,17 +2,14 @@
  *  game.js
  *  Houses game logic for HexWars
  */
-
-
-
 function GAME() {
     this.map;
 	this.gamestate   = 0; 
 	this.players     = [];
     this.mapheight   = 600;
     this.mapwidth    = 600;
-    this.regionCount = 20;
-    this.tilesize = Math.sqrt((this.mapwidth^2)+(this.mapheight^2))/(this.regionCount/5)
+    this.regionCount = 27;
+    this.tilesize    = Math.sqrt((this.mapwidth^2)+(this.mapheight^2))/(this.regionCount/5)
     this.playerCount = 2;
 }
 
