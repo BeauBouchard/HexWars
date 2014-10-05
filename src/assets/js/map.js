@@ -1,31 +1,25 @@
-/**
- * given a canvas, hexagon orientation and tile size
- * calculate the maximum number or rows and columns
- * initialize an array of r * c entries set to true
- * pick M-number random row, column pairs to start
- * store each pair in a respective 'region' object
- * try N times to grow a region:
- *     - generate a list of adjacent cells
- *     - filter out non-empty cells (look at r * entry array for true value)
- *     - pick a random one and add it to the region
- *
- * to draw a region:
- * for each cell:
- *     draw a tile, ignoring sides that have a neighbor that is also in the region
- *
- * grid object:
- * given a width, height, and tile size
- * calculate the maximum number or rows and columns
- * initialize a 2-dimensional array of row x column to x,y coordinates
- */
-
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 };
 
 
 function MAP(mapwidth,mapheight,tilesize) { 
-    this.tileset            = [];
+    /**
+     * There are 6 neighbors for every tile, the direction input is below:
+     *      __
+     *   __/  \__
+     *  /  \_3/  \
+     *  \_2/  \4_/
+     *  / 1\__/5 \
+     *  \__/0 \__/
+     *     \__/
+     */
+    this.nDelta = {
+        even: [ [1,  0], [ 0, -1], [-1, -1],
+                [-1,  0], [-1, 1], [ 0, 1] ],
+        odd: [ [1,  0], [1, -1], [ 0, -1],
+               [-1,  0], [ 0, 1], [1, 1] ]
+    }
     this.mapwidth           = mapwidth;
     this.mapheight          = mapheight;
     this.tilesize           = tilesize;
@@ -52,13 +46,12 @@ MAP.prototype = {
         for(var tileid = 0; tileid<=((this.maxRows)*(this.maxColumns));tileid++){
             var row = tileid%this.maxRows;
             var column = tileid%this.maxColumns;
-            console.log("Row:"+row+" Column:"+column+"");
             this.tileSet[row][column].setid(tileid);
             this.tileSet[row][column].draw();
         }
     },
     initCircle: function () {
-        this.tileCount          = 6;
+        this.tileCount          = this.tilesize;
         console.log("MAP.initCircle");
         console.log("generating: " + this.tileCount + " rings of tiles");
         // size is the size of the hex from corner to another corner across. 
@@ -76,19 +69,65 @@ MAP.prototype = {
                 //console.log("MAP.newtile");
                 var x = this.tilesize * 3/2 * r;
                 var y = this.tilesize * Math.sqrt(3) * (q + r/2);
-
                 var row = tileid%this.maxRows;
                 var column = tileid%this.maxColumns;
-                console.log("Row:"+row+" Column:"+column+" X:"+(x + xCenter) + " Y:" + (y + yCenter));
-                alert("");
                 this.tileSet[row][column].initialize(tileid,x + xCenter, y + yCenter);
                 this.tileSet[row][column].draw();
-                //this.tileset.push(atile);
                 tileid++;
             }
         }
-        this.drawMap();
-        return;
+    },
+        getTile: function(row,col) {
+        return this.tileSet[row][col];
+    },
+    getMaxRows: function() {
+        return this.maxRows;
+    },
+    getMaxColumns: function() {
+        return this.maxColumns;
+    },
+    setTile: function(row,col, tile) {
+        this.tileSet[row][col] = tile;
+    },
+    getNeighbor: function(tile,direction) {
+        var parity = tile.getColumn() & 1 ? 'odd' : 'even'; //checks if row is even or odd, assigns
+        var delta  = this.nDelta[parity][direction]; // returns a array, with 0 being row delta, and 1 column delta
+        var newRow = tile.getRow() + delta[0];
+        var newCol = tile.getColumn() + delta[1];
+        if(newRow < 0){
+            newRow =this.maxRows -1;
+        } 
+        if (newCol < 0){
+            newCol = this.maxColumns -1;
+        } 
+        if (newRow > this.maxRows ){
+            newRow = 0;
+        }
+        if ( newCol > this.maxColumns){
+            newCol = 0;
+        } 
+            return this.tileSet[tile.getRow() + delta[0]][ tile.getColumn() + delta[1]];
+    },
+    getLivingNeighbors: function(tile) {
+        var count = 0; //living Neighbor count
+        var parity = tile.getColumn() & 1 ? 'odd' : 'even';
+        for(var i = 0; i <6; i++){
+            var delta = this.nDelta[parity][i];
+            //console.log("Delta: "+delta + " Parity:" + parity);
+            var newRow = tile.getRow() + delta[0];
+            var newCol = tile.getColumn() + delta[1];
+            //console.log("newRow: "+newRow + " newCol:" + newCol);
+            if(newRow < 0 || newCol < 0 || newRow >= this.maxRows || newCol >= this.maxColumns)         {
+                //skip
+            } else  {
+                var tiletocheck = this.tileSet[newRow][newCol].getOccupied();
+                if(tiletocheck){
+                    count++;
+                }
+            }
+        
+        }
+        return count;
     }
 }
 
@@ -111,9 +150,6 @@ function TILE(tilesize, row, column) {
     this.strokeStyle = "black";
     this.fillStyle = 'white';
     this.lineWidth = 1;
-    this.neighborDelta = {
-        even: [[1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [0, 1]],
-        odd: [[1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1], [0, 1]]}
 }
 
 TILE.prototype = {
@@ -148,11 +184,13 @@ TILE.prototype = {
                 //Corner x and y, draws each side/cornerpoint
                 var cornX = this.x + this.size * Math.cos(angle);
                 var cornY = this.y + this.size * Math.sin(angle);
+                // if(checkneighbor) {
                 if( i == 0) {
                     pointString = " " + cornX + "," + cornY;
                 } else {
                     pointString += " " + cornX + "," + cornY;
                 }
+                // }
             }
             polygon.setAttributeNS(null, 'points', pointString);
             
@@ -172,27 +210,17 @@ TILE.prototype = {
             this.display = false;
         }
     },
-    getNeighbors: function () {
+    reset: function () {
+        //set to default starting white tile
 
+        this.strokeStyle = "black";
+        this.fillStyle = '#323232';
+        this.lineWidth = 1;
+        this.occupied = false;
+        this.cell = false;
+        this.clear();
+        this.draw();
 
-        var parity = this.row & 1 ? 'odd' : 'even';
-        var delta;
-
-        /*return [0, 1, 2, 3, 4, 5].map(function(direction) {
-            delta = neighborDelta[parity][direction];
-
-            return [this.row + delta[0], this.column + delta[1]];
-        }, this).map(function(coordinates) {
-            return this.grid.getHex.apply(this.grid, coordinates);
-        }, this).filter(function(hex) {
-            return hex;
-        });*/
-    },
-    getNeighbor: function(direction) {
-        var parity = this.row & 1 ? 'odd' : 'even';
-        var delta = this.neighborDelta[parity][direction];
-
-        return this.grid.getHex(this.row + delta[0], this.column + delta[1]);
     }, 
     toString: function() {
         return this.row + ', ' + this.column;
@@ -225,11 +253,30 @@ HUD.prototype = {
 };
 
 
-function REGION(){
-
+function REGION(id){
+    this.id = id;
+    this.colorchart = ['#1D95D1', '#F72708', '#EDF900' ];
+    this.color = this.colorchart[this.id];
+    this.x;
+    this.y;
+    this.alive = false;
 }
 
-REGION.prototype.grow = function () {
+REGION.prototype = {
+    initialize: function(y,x,tile) {
+        this.x = x;
+        this.y = y;
+        this.alive = true;
+        tile.setFillStyle(this.color);
+        return this.redraw(tile);
+    },
+    getColor: function() {
+        return this.color;
+    },
+    grow: function () {
+
+    }
+}
     /*
     var self = this;
     var emptyNeighbors = this.getCells().map(
@@ -237,7 +284,7 @@ REGION.prototype.grow = function () {
             return cell.getNeighbors();
         }
     */
-}
+
 REGION.prototype.reduce = function (carry, neighbors) {
     /*var i, neighbor;
     for (i = 0; i < neighbors.length; i++) {
